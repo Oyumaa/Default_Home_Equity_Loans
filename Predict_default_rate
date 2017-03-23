@@ -1,0 +1,71 @@
+require(moments)
+require(stats)
+require(ggplot2)
+library(party)
+library(MASS)
+library(car)
+heloc<-read.csv("C:/MSPA/411_GLM/Bingo Bonus/Unit 002/heloc.csv",header=TRUE,sep=",")
+str(heloc)
+summary(heloc)
+library("VIM")
+aggr(heloc,prop=FALSE,numbers=TRUE)
+mean(!complete.cases(heloc))
+plot(heloc[,3:5])
+out1<- aggregate(LOAN~REASON+JOB, data=heloc,mean)
+par(mfrow=c(1,1))
+ggplot(data=out1,aes(x=REASON, y=LOAN, group=JOB, colour=JOB))+geom_line()+geom_point(size=3)+
+  ggtitle("Plot shows Mean Loan for each reason by job")
+mean(!complete.cases(heloc[1:8]))
+library(psych)
+corr.test(heloc[3:5],use="complete")
+corr.test(heloc[8:14],use="complete")
+sum(is.na(heloc$VALUE))
+sum(is.na(heloc$DEBTINC))
+sum(is.na(heloc$MORTDUE))
+#*****************************************************************
+#create new set without missing value in the variable MORGDUE
+#*****************************************************************
+new_set<-heloc[complete.cases(heloc[,5]),]
+aggr(new_set,prop=FALSE,numbers=TRUE)
+mean(!complete.cases(new_set))
+attach(new_set)
+# bloxplot for reason
+par(mfrow=c(1,1))
+boxplot(LOAN~REASON,data=new_set,
+        main="BOX PLOT of LOAN by REASON",
+        ylab="LOAN",
+        xlab="REASON",
+        col=c("red","blue","green"))
+# bloxplot for job
+par(mfrow=c(1,1))
+boxplot(LOAN~JOB,data=new_set,
+        main="BOX PLOT of LOAN by JOB",
+        ylab="LOAN",
+        xlab="JOB",
+        col=c("red","blue","green"))
+#***********************************************************************
+#Create new variables LOAN+MORTUE
+#***********************************************************************
+TOTAL_DEBT=new_set$LOAN+new_set$MORTDUE
+dataset_1<-data.frame(INDEX,
+                      TARGET_FLAG,
+                      TOTAL_DEBT,
+                      VALUE,
+                      REASON,
+                      JOB,
+                      YOJ,
+                      DEROG,
+                      DELINQ,
+                      CLAGE,
+                      NINQ,
+                      CLNO,
+                      DEBTINC)
+str(dataset_1)
+par(mfrow=c(1,1))
+boxplot(TOTAL_DEBT~REASON,data=new_set,
+        main="BOX PLOT of TOTAL_DEBT by REASON",
+        ylab="TOTAL_DEBT",
+        xlab="REASON",
+        col=c("red","blue","green"))
+
+
